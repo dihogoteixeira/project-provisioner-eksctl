@@ -78,6 +78,7 @@ k8s-deploy-monit-core:
       - unknown_failure
   tags:
     - backend-services-shell-01
+  when: manual
   only:
     - master
 
@@ -165,6 +166,7 @@ k8s-deploy-management:
       - unknown_failure
   tags:
     - backend-services-shell-01
+  when: manual
   only:
     - master
 
