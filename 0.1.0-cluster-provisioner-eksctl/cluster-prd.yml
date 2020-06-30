@@ -1,0 +1,119 @@
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: "cluster-prd"
+  region: "us-east-1"
+  version: "1.15"
+
+vpc:
+  subnets:
+    private:
+      us-east-1a: { id: subnet-<ID> }
+      us-east-1b: { id: subnet-<ID> }
+      us-east-1c: { id: subnet-<ID> }
+
+cloudWatch:
+  clusterLogging:
+    enableTypes: ["*"]
+
+nodeGroups:
+  # Node Group Ec2 2vcpu 16gb Spot
+  - name: monit-prd-2vcpu-8gb-spot
+    ami: "ami-0842e3f57a7f2db2e"
+    amiFamily: AmazonLinux2
+    instanceType: mixed
+    availabilityZones: ["us-east-1a", "us-east-1b", "us-east-1c"]
+    privateNetworking: true
+    desiredCapacity: 4
+    minSize: 4
+    maxSize: 8
+    volumeSize: 1000
+    volumeType: "gp2"
+    volumeEncrypted: true
+    instancesDistribution:
+      maxPrice: 0.062
+      onDemandPercentageAboveBaseCapacity: 0
+      instanceTypes: ["t3a.large", "m6g.large", "t3.large", "m5a.large", "m5.large", "m4.large"]
+      spotInstancePools: 6
+    labels:
+      intent: apps
+      lifecycle: Ec2Spot
+      nodeType: ElasticMasterClient
+      aws.amazon.com/spot: "true"
+    taints:
+      spotInstance: "true:PreferNoSchedule"
+    tags:
+      Name: 'elk-stack-worker-node-prd'
+      Project: 'Monitoramento'
+      Environment: 'Monitoramento'
+      EnvironmentType: 'PRD'
+      K8s.io/cluster-autoscaler/enabled: 'true'
+      Kubernetes.io/cluster/dev-elk-stack: 'owned'
+      K8s.io/cluster-autoscaler/node-template/label/lifecycle: 'Ec2Spot'
+      K8s.io/cluster-autoscaler/node-template/label/nodeType: 'ElasticMasterClient'
+      K8s.io/cluster-autoscaler/node-template/taint/spotInstance: 'true:PreferNoSchedule'
+    iam:
+      withAddonPolicies:
+        autoScaler: true
+        albIngress: true
+        cloudWatch: true
+        ebs: true
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+    ssh:
+      allow: true
+      publicKeyName: "key-cluster-prd"
+
+  # Node Group Ec2 4vcpu 16gb Spot
+  - name: key-cluster-prd-prd-4vcpu-16gb-spot
+    ami: "ami-0842e3f57a7f2db2e"
+    amiFamily: AmazonLinux2
+    instanceType: mixed
+    availabilityZones: ["us-east-1a", "us-east-1b", "us-east-1c"]
+    privateNetworking: true
+    desiredCapacity: 4
+    minSize: 4
+    maxSize: 8
+    volumeSize: 1000
+    volumeType: "gp2"
+    volumeEncrypted: true
+    instancesDistribution:
+      maxPrice: 0.090
+      onDemandPercentageAboveBaseCapacity: 0
+      instanceTypes: ["r5d.large","r5dn.large","m6g.xlarge", "m5a.xlarge"]
+      spotInstancePools: 8
+    labels:
+      intent: apps
+      lifecycle: Ec2Spot
+      nodeType: ElasticData
+      aws.amazon.com/spot: "true"
+    taints:
+      spotInstance: "true:PreferNoSchedule"
+    tags:
+      Name: 'elk-stack-worker-node-prd'
+      Project: 'Monitoramento'
+      Environment: 'Monitoramento'
+      EnvironmentType: 'PRD'
+      K8s.io/cluster-autoscaler/enabled: 'true'
+      Kubernetes.io/cluster/dev-elk-stack: 'owned'
+      K8s.io/cluster-autoscaler/node-template/label/lifecycle: 'Ec2Spot'
+      K8s.io/cluster-autoscaler/node-template/label/nodeType: 'ElasticData'
+      K8s.io/cluster-autoscaler/node-template/taint/spotInstance: 'true:PreferNoSchedule'
+    iam:
+      withAddonPolicies:
+        autoScaler: true
+        albIngress: true
+        cloudWatch: true
+        ebs: true
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+    ssh:
+      allow: true
+      publicKeyName: "key-cluster-prd"

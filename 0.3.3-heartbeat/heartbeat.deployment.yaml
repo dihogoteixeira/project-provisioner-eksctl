@@ -1,0 +1,75 @@
+# heartbeat.deployment.yaml
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: heartbeat
+  namespace: monitoring
+  labels:
+    app: heartbeat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: heartbeat
+  template:
+    metadata:
+      labels:
+        app: heartbeat
+    spec:
+      serviceAccountName: heartbeat
+      containers:
+        - name: heartbeat
+          image: docker.elastic.co/beats/heartbeat:7.5.2
+          args: [
+            "-c", "/etc/heartbeat.yml",
+            "-e",
+          ]
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: username
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: password
+
+            - name: ELASTICSEARCH_HOST
+              value: elasticsearch-client.monitoring.svc.cluster.local
+            - name: ELASTICSEARCH_USERNAME
+              value: elastic
+            - name: ELASTICSEARCH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: elasticsearch-pw-elastic
+                  key: password
+            - name: KIBANA_HOST
+              value: kibana.monitoring.svc.cluster.local
+            - name: KIBANA_PORT
+              value: "5601"
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          securityContext:
+            runAsUser: 0
+          resources:
+            limits:
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/heartbeat.yml
+              readOnly: true
+              subPath: heartbeat.yml
+      volumes:
+        - name: config
+          configMap:
+            defaultMode: 0600
+            name: heartbeat-deployment-config
+---

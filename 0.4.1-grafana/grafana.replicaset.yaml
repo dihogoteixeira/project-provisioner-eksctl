@@ -1,0 +1,113 @@
+# grafana.replicaset.yaml
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: monitoring
+  name: grafana-core
+  labels:
+    app: grafana
+    role: core
+spec:
+  serviceName: grafana
+  replicas: 2
+  selector:
+    matchLabels:
+      app: grafana
+      role: core
+  template:
+    metadata:
+      labels:
+        app: grafana
+        role: core
+    spec:
+      initContainers:
+        - name: gf-install-plugin
+          image: grafana/grafana
+          command: ['sh', '-c']
+          args: ['grafana-cli --pluginsDir "/var/lib/grafana/plugins" plugins install digrich-bubblechart-panel &&
+                  grafana-cli --pluginsDir "/var/lib/grafana/plugins" plugins install grafana-clock-panel &&
+                  grafana-cli --pluginsDir "/var/lib/grafana/plugins" plugins install grafana-piechart-panel']
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: grafana-data-storage
+              mountPath: /var/lib/grafana/data
+
+      containers:
+        - name: grafana-core
+          image: grafana/grafana
+          ports:
+            - containerPort: 3000
+              name: webinterface
+          resources:
+            limits:
+              cpu: 100m
+              memory: 100Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          env:
+            - name: GF_AUTH_BASIC_ENABLED
+              value: "true"
+            - name: GF_AUTH_ANONYMOUS_ENABLED
+              value: "false"
+            - name: GF_PATHS_PROVISIONING
+              value: "/usr/share/grafana/conf/provisioning"
+            - name: ELASTICSEARCH_HOSTS
+              value: "http://elasticsearch-client.monitoring.svc.cluster.local:9200"
+            - name: ELASTICSEARCH_USER
+              value: "elastic"
+            - name: ELASTICSEARCH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: elasticsearch-pw-elastic
+                  key: password
+            - name: PROMETHEUS_HOSTS
+              value: "http://prometheus.monitoring.svc.cluster.local:32321"
+
+          # spec.template.spec.containers[elasticsearch].volumeMounts
+          volumeMounts:
+            # Grafana config provisioning
+            - name: config
+              mountPath: /etc/grafana/
+              # Datasource provisioning
+            - name: datasources
+              mountPath: /usr/share/grafana/conf/provisioning/datasources
+              # Dashboard provisioning
+            - name: dash
+              mountPath: /usr/share/grafana/conf/provisioning/dashboards
+      # spec.template.spec
+      volumes:
+        - name: config
+          configMap:
+            name: grafana-config
+            items:
+              - key: grafana.ini
+                path: grafana.ini
+        - name: datasources
+          configMap:
+            name: grafana-config
+            items:
+              - key: elastic-datasource.yaml
+                path: elastic-datasource.yaml
+              - key: prometheus-datasource.yaml
+                path: prometheus-datasource.yaml
+        - name: dash
+          configMap:
+            name: grafana-config
+            items:
+              - key: grafana-dash.json
+                path: grafana-dash.json
+  # spec.volumeClaimTemplates
+  volumeClaimTemplates:
+    - metadata:
+        name: grafana-data-storage
+        annotations:
+          volume.beta.kubernetes.io/storage-class: "grafana-data"
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: grafana-data
+        resources:
+          requests:
+            storage: 100Gi

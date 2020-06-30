@@ -1,0 +1,26 @@
+---
+- name: Install elk client
+  hosts: ec2-prd
+  user: ec2-user
+  become: yes
+  become_user: root
+  gather_facts: yes
+  tasks:
+    - name: Copy Auditbeat and set permissions
+      copy:
+        src: ../project-provisioner-eksctl/0.7.0-ansible-install-client-beats/scripts/auditbeat.daemon.install.prd.sh
+        dest: /tmp/auditbeat.daemon.install.prd.sh
+        owner: root
+        group: root
+        mode: 'a+x'
+    - name: Runing a Auditbeat script on remote hosts
+      command: bash /tmp/auditbeat.daemon.install.prd.sh
+    - name: Copy Filebeat and set permissions
+      copy:
+        src: ../project-provisioner-eksctl/0.7.0-ansible-install-client-beats/scripts/filebeat.daemon.install.prd.sh
+        dest: /tmp/filebeat.daemon.install.prd.sh
+        owner: root
+        group: root
+        mode: 'a+x'
+    - name: Runing a Auditbeat script on remote hosts
+      command: bash /tmp/filebeat.daemon.install.prd.sh

@@ -1,0 +1,213 @@
+variables:
+  CI_DEBUG_TRACE: "true"
+
+build:
+  stage:
+    - k8s-deploy-monit-core
+    - k8s-deploy-management
+    - k8s-deploy-vote-app
+    - k8s-deploy-ingress
+
+k8s-deploy-monit-core:
+  stage: k8s-deploy-monit-core
+  script:
+    - kubectl appy -f 0.2.0-eck/.
+    - kubectl appy -f 0.2.0-eck/.secrets/.
+    - kubectl appy -f 0.2.1-elasticsearch/0.1.0-master/.
+    - echo '..:: 20 ::..'
+    - echo '..:: 19 ::..'
+    - echo '..:: 18 ::..'
+    - echo '..:: 17 ::..'
+    - echo '..:: 16 ::..'
+    - echo '..:: 15 ::..'
+    - echo '..:: 14 ::..'
+    - echo '..:: 13 ::..'
+    - echo '..:: 12 ::..'
+    - echo '..:: 11 ::..'
+    - echo '..:: 10 ::..'
+    - echo '..:: 09 ::..'
+    - echo '..:: 08 ::..'
+    - echo '..:: 07 ::..'
+    - echo '..:: 06 ::..'
+    - echo '..:: 05 ::..'
+    - echo '..:: 04 ::..'
+    - echo '..:: 03 ::..'
+    - echo '..:: 02 ::..'
+    - echo '..:: 01 ::..'
+    - echo '..:: 00 ::..'
+    - kubectl appy -f 0.2.1-elasticsearch/0.2.0-data/.
+    - echo '..:: 20 ::..'
+    - echo '..:: 19 ::..'
+    - echo '..:: 18 ::..'
+    - echo '..:: 17 ::..'
+    - echo '..:: 16 ::..'
+    - echo '..:: 15 ::..'
+    - echo '..:: 14 ::..'
+    - echo '..:: 13 ::..'
+    - echo '..:: 12 ::..'
+    - echo '..:: 11 ::..'
+    - echo '..:: 10 ::..'
+    - echo '..:: 09 ::..'
+    - echo '..:: 08 ::..'
+    - echo '..:: 07 ::..'
+    - echo '..:: 06 ::..'
+    - echo '..:: 05 ::..'
+    - echo '..:: 04 ::..'
+    - echo '..:: 03 ::..'
+    - echo '..:: 02 ::..'
+    - echo '..:: 01 ::..'
+    - echo '..:: 00 ::..'
+    - kubectl appy -f 0.2.1-elasticsearch/0.3.0-client/.
+    - echo '..:: 10 ::..'
+    - echo '..:: 09 ::..'
+    - echo '..:: 08 ::..'
+    - echo '..:: 07 ::..'
+    - echo '..:: 06 ::..'
+    - echo '..:: 05 ::..'
+    - echo '..:: 04 ::..'
+    - echo '..:: 03 ::..'
+    - echo '..:: 02 ::..'
+    - echo '..:: 01 ::..'
+    - echo '..:: 00 ::..'
+    - echo '..:: APLIQUE AS CREDENCIAIS NO CLIENT INTERACTIVE ANTES DE PROSSEGUIR COM O PROXIMO STAGE! ::..'
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+      - unknown_failure
+  tags:
+    - backend-services-shell-01
+  only:
+    - master
+
+k8s-deploy-management:
+  stage: k8s-deploy-management
+  script:
+    - kubectl appy -f 0.2.2-kibana/.
+    - echo '..:: 10 ::..'
+    - echo '..:: 09 ::..'
+    - echo '..:: 08 ::..'
+    - echo '..:: 07 ::..'
+    - echo '..:: 06 ::..'
+    - echo '..:: 05 ::..'
+    - echo '..:: 04 ::..'
+    - echo '..:: 03 ::..'
+    - echo '..:: 02 ::..'
+    - echo '..:: 01 ::..'
+    - echo '..:: 00 ::..'
+    - kubectl appy -f 0.3.0-metric-beats/.
+    - echo '..:: 10 ::..'
+    - echo '..:: 09 ::..'
+    - echo '..:: 08 ::..'
+    - echo '..:: 07 ::..'
+    - echo '..:: 06 ::..'
+    - echo '..:: 05 ::..'
+    - echo '..:: 04 ::..'
+    - echo '..:: 03 ::..'
+    - echo '..:: 02 ::..'
+    - echo '..:: 01 ::..'
+    - echo '..:: 00 ::..'
+    - kubectl appy -f 0.3.1-file-beat/.
+    - echo '..:: 10 ::..'
+    - echo '..:: 09 ::..'
+    - echo '..:: 08 ::..'
+    - echo '..:: 07 ::..'
+    - echo '..:: 06 ::..'
+    - echo '..:: 05 ::..'
+    - echo '..:: 04 ::..'
+    - echo '..:: 03 ::..'
+    - echo '..:: 02 ::..'
+    - echo '..:: 01 ::..'
+    - echo '..:: 00 ::..'
+    - kubectl appy -f 0.3.2-logstash/.
+    - echo '..:: 10 ::..'
+    - echo '..:: 09 ::..'
+    - echo '..:: 08 ::..'
+    - echo '..:: 07 ::..'
+    - echo '..:: 06 ::..'
+    - echo '..:: 05 ::..'
+    - echo '..:: 04 ::..'
+    - echo '..:: 03 ::..'
+    - echo '..:: 02 ::..'
+    - echo '..:: 01 ::..'
+    - echo '..:: 00 ::..'
+    - kubectl appy -f 0.3.3-heartbeat/.
+    - echo '..:: 10 ::..'
+    - echo '..:: 09 ::..'
+    - echo '..:: 08 ::..'
+    - echo '..:: 07 ::..'
+    - echo '..:: 06 ::..'
+    - echo '..:: 05 ::..'
+    - echo '..:: 04 ::..'
+    - echo '..:: 03 ::..'
+    - echo '..:: 02 ::..'
+    - echo '..:: 01 ::..'
+    - echo '..:: 00 ::..'
+    - kubectl appy -f 0.4.0-prometheus/.
+    - echo '..:: 10 ::..'
+    - echo '..:: 09 ::..'
+    - echo '..:: 08 ::..'
+    - echo '..:: 07 ::..'
+    - echo '..:: 06 ::..'
+    - echo '..:: 05 ::..'
+    - echo '..:: 04 ::..'
+    - echo '..:: 03 ::..'
+    - echo '..:: 02 ::..'
+    - echo '..:: 01 ::..'
+    - echo '..:: 00 ::..'
+    - kubectl appy -f 0.4.1-grafana/.
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+      - unknown_failure
+  tags:
+    - backend-services-shell-01
+  only:
+    - master
+
+k8s-deploy-vote-app:
+  script:
+    - kubectl appy -f 0.5.0-vote-specifications/.
+    - echo '..:: 10 ::..'
+    - echo '..:: 09 ::..'
+    - echo '..:: 08 ::..'
+    - echo '..:: 07 ::..'
+    - echo '..:: 06 ::..'
+    - echo '..:: 05 ::..'
+    - echo '..:: 04 ::..'
+    - echo '..:: 03 ::..'
+    - echo '..:: 02 ::..'
+    - echo '..:: 01 ::..'
+    - echo '..:: 00 ::..'
+  environment:
+    name: production
+    url: https://vote.com.br/
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+      - unknown_failure
+  tags:
+    - backend-services-shell-01
+  when: manual
+  only:
+    - master
+
+k8s-deploy-ingress:
+  script:
+    - kubectl appy -f 0.6.0-ingress/.
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+      - unknown_failure
+  tags:
+    - backend-services-shell-01
+  when: manual
+  only:
+    - master

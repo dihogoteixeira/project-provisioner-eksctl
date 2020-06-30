@@ -1,0 +1,8 @@
+# That Owns
+*.tfvars
+*env*
+*.pem
+*.py
+
+# Ignore Folders
+.idea

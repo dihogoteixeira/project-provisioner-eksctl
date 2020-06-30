@@ -1,0 +1,29 @@
+# elasticsearch-master.configmap.yaml
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: monitoring
+  name: elasticsearch-master-config
+  labels:
+    app: elasticsearch
+    role: master
+data:
+  elasticsearch.yml: |-
+    cluster.name: ${CLUSTER_NAME}
+    node.name: ${NODE_NAME}
+    discovery.seed_hosts: ${NODE_LIST}
+    cluster.initial_master_nodes: ${MASTER_NODES}
+
+    network.host: 0.0.0.0
+
+    node:
+      master: true
+      data: false
+      ingest: false
+
+    reindex.remote.whitelist: "esingest.com.br:9200, 10.10.4.*:9200, ip-10-10-4-114.ec2.internal:9200"
+    thread_pool.snapshot.max: 8
+    xpack.security.enabled: true
+    xpack.monitoring.collection.enabled: true
+    search.remote.connect: false

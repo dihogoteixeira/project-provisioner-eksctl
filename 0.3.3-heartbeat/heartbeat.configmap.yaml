@@ -1,0 +1,45 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: heartbeat-deployment-config
+  namespace: monitoring
+  labels:
+    app: heartbeat
+data:
+  heartbeat.yml: |-
+
+    # Configure modules
+    heartbeat.monitors:
+    - type: http
+      schedule: '@every 5s'
+      urls:
+        - "https://api.r12n.com.br/management/health/?format=json"
+        - "https://barramento-controller.com.br/health"
+        - "https://b2b-api.com.br/api/v1/check"
+        - "https://barramento-playground.com.br"
+        - "https://cadastrovarejo.com.br"
+        - "https://b2b-portal.com.br"
+        - "https://b2b-mobile.com.br"
+        - "https://vendedor.com.br"
+        - "https://r12n.com.br"
+        - "https://admin.r12n.com.br"
+        - "https://b2b-admin.com.br"
+        - "https://b2b-api.com.br"
+        - "https://b2b-api-sdk.com.br"
+        - "https://hub-api.com.br"
+        - "https://py-api.com.br"
+        - "https://portal.com.br"
+        - "https://cards.com.br"
+        - "https://integration-new.com.br"
+        - "http://alimentar.com.br"
+      check.response.status: 200
+
+    output.elasticsearch:
+      hosts: ['${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}']
+      username: ${ELASTICSEARCH_USERNAME}
+      password: ${ELASTICSEARCH_PASSWORD}
+
+    setup.kibana:
+      host: '${KIBANA_HOST:kibana}:${KIBANA_PORT:5601}'
+---

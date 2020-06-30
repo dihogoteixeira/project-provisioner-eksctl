@@ -1,0 +1,58 @@
+# prometheus.configmao.yaml
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: monitoring
+  name: prometheus
+  labels:
+    app: prometheus
+    role: server
+spec:
+  serviceName: prometheus
+  replicas: 2
+  selector:
+    matchLabels:
+      app: prometheus
+      role: server
+  template:
+    metadata:
+      labels:
+        app: prometheus
+        role: server
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus/"
+          ports:
+            - containerPort: 9090
+              name: webinterface
+
+          # spec.template.spec.containers[prometheus].volumeMounts
+          volumeMounts:
+            # Prometheus config provisioning
+            - name: config
+              mountPath: /etc/prometheus/
+      # spec.template.spec
+      volumes:
+        - name: config
+          configMap:
+            name: prometheus-config
+            items:
+              - key: prometheus.yml
+                path: prometheus.yml
+  # spec.volumeClaimTemplates
+  volumeClaimTemplates:
+    - metadata:
+        name: prometheus-data-storage
+        annotations:
+          volume.beta.kubernetes.io/storage-class: "monitor"
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: monitor
+        resources:
+          requests:
+            storage: 100Gi
